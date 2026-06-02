@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Taha Restaurant - AI Voice Reservation Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            border-radius: 28px;
+            padding: 50px 40px;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .call-button-container {
+            margin: 30px 0;
+        }
+
+        .start-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .start-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .end-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.active {
+            display: block;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.connecting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 25px 0;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .mic-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mic-icon">🎤</div>
+        <h1>Taha Restaurant</h1>
+        <div class="badge">🤖 AI Voice Agent - Live Demo</div>
+        
+        <div class="call-button-container">
+            <button id="callBtn" class="start-btn">🎙️ Start Conversation</button>
+        </div>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="divider"></div>
+        
+        <p class="footer">
+            🔊 Powered by ElevenLabs Conversational AI<br>
+            Built for Taha Restaurant
+        </p>
+    </div>
+
+    <script>
+        // ElevenLabs Widget Script
+        const script = document.createElement('script');
+        script.src = 'https://elevenlabs.io/convai-widget/index.js';
+        script.async = true;
+        document.body.appendChild(script);
+
+        let widget = null;
+        let isWidgetReady = false;
+
+        const callBtn = document.getElementById('callBtn');
+        const statusDiv = document.getElementById('status');
+
+        function showStatus(message, type) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status active ${type}`;
+            setTimeout(() => {
+                if (statusDiv.classList.contains('active')) {
+                    statusDiv.classList.remove('active');
+                }
+            }, 4000);
+        }
+
+        // Wait for widget to be available
+        function waitForWidget() {
+            return new Promise((resolve) => {
+                const checkInterval = setInterval(() => {
+                    const widgetElement = document.querySelector('elevenlabs-convai');
+                    if (widgetElement && widgetElement.clientWidth > 0) {
+                        clearInterval(checkInterval);
+                        widget = widgetElement;
+                        isWidgetReady = true;
+                        resolve();
+                    }
+                }, 500);
+                
+                setTimeout(() => {
+                    clearInterval(checkInterval);
+                    resolve();
+                }, 10000);
+            });
+        }
+
+        callBtn.addEventListener('click', async () => {
+            if (!isWidgetReady) {
+                await waitForWidget();
+            }
+            
+            if (widget) {
+                // Toggle the widget's microphone
+                if (widget.getAttribute('state') === 'connected') {
+                    widget.disconnect();
+                    callBtn.textContent = '🎙️ Start Conversation';
+                    callBtn.classList.remove('end-btn');
+                    showStatus('Call ended.', 'connected');
+                } else {
+                    widget.connect();
+                    callBtn.textContent = '🔴 End Call';
+                    callBtn.classList.add('end-btn');
+                    showStatus('Connecting to AI agent...', 'connecting');
+                    
+                    // Listen for end of conversation
+                    setTimeout(() => {
+                        if (widget.getAttribute('state') === 'connected') {
+                            showStatus('Agent is ready! Start speaking.', 'connected');
+                        }
+                    }, 3000);
+                }
+            } else {
+                showStatus('Widget is loading. Please wait a moment.', 'error');
+            }
+        });
+
+        // Listen for widget state changes
+        setInterval(() => {
+            if (widget) {
+                const state = widget.getAttribute('state');
+                if (state === 'disconnected' && callBtn.textContent.includes('End Call')) {
+                    callBtn.textContent = '🎙️ Start Conversation';
+                    callBtn.classList.remove('end-btn');
+                    showStatus('Conversation completed. Thank you for calling!', 'connected');
+                }
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
