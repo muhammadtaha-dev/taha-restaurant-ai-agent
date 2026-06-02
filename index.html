@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Taha Restaurant - AI Voice Reservation Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            border-radius: 28px;
+            padding: 50px 40px;
+            max-width: 550px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 50px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 30px;
+        }
+
+        .widget-container {
+            margin: 30px 0;
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status.active {
+            display: block;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.connecting {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 25px 0;
+        }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 11px;
+            color: #aaa;
+        }
+
+        .mic-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+
+        /* Hide default widget border */
+        elevenlabs-convai {
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="mic-icon">🎤</div>
+        <h1>Taha Restaurant</h1>
+        <div class="badge">🤖 AI Voice Agent - Live Demo</div>
+        
+        <div class="widget-container" id="widgetContainer">
+            <div class="loader"></div>
+            <p style="margin-top: 10px; color: #888;">Loading voice agent...</p>
+        </div>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="divider"></div>
+        
+        <p class="footer">
+            🔊 Click the microphone icon above to start speaking<br>
+            Built for Taha Restaurant
+        </p>
+    </div>
+
+    <!-- ElevenLabs Widget -->
+    <elevenlabs-convai agent-id="agent_0601kt40ar9ke119yp3nxkkcpj4x"></elevenlabs-convai>
+    <script src="https://elevenlabs.io/convai-widget/index.js" async></script>
+
+    <script>
+        // Wait for widget to load and replace loader
+        setTimeout(() => {
+            const widget = document.querySelector('elevenlabs-convai');
+            const container = document.getElementById('widgetContainer');
+            
+            if (widget && container) {
+                // Widget exists, remove loader
+                container.innerHTML = '';
+                container.appendChild(widget);
+            } else {
+                container.innerHTML = '<p style="color: red;">Failed to load. Please refresh the page.</p>';
+            }
+        }, 3000);
+    </script>
+</body>
+</html>
